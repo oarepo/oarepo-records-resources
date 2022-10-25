@@ -1,0 +1,20 @@
+model:
+  properties:
+    metadata:
+      properties:  # to add yout own properties, remove this line and uncomment the next one
+        filename:
+          type: fulltext
+        licence_type:
+          type: keyword
+        filesize:
+          type: number
+
+oarepo:use:
+  - invenio
+
+
+
+# normally there is no need to modify the settings bellow, but feel free
+settings:
+  package: model_file
+  schema-server: 'local://'
