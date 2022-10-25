@@ -8,6 +8,12 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.9", "3.10" ]
+        search-service: [elasticsearch7]
+        include:
+          - search-service: elasticsearch7
+            SEARCH_EXTRAS: "elasticsearch7"
+    env:
+      SEARCH: ${{ matrix.search-service }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
