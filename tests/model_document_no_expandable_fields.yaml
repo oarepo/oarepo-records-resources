@@ -10,7 +10,7 @@ model:
              type: keyword
           oarepo:marshmallow:
             generate: true
-            class: model_document.schemas.FileSchema
+            class: model_document_no_expandable_fields.schemas.FileSchema
 
 oarepo:use:
   - invenio
@@ -18,13 +18,7 @@ oarepo:use:
 
 # normally there is no need to modify the settings bellow, but feel free
 settings:
-  package: model_document
+  package: model_document_no_expandable_fields
   schema-server: 'local://'
 
-expandable-fields:
-  - field-name: metadata.file
-    referenced-keys:
-      - metadata.filename
-      - metadata.filesize
-    service: model_file.proxies.current_service
 

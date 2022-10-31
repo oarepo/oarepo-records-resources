@@ -7,33 +7,36 @@ from invenio_accounts.testutils import login_user_via_session
 from invenio_app.factory import create_api
 from invenio_records_resources.services.uow import UnitOfWork, RecordCommitOp
 
-#from model_document.proxies import current_service as document_service
-from model_document.records.api import ModelDocumentRecord
-from model_document.services.config import ModelDocumentServiceConfig
+from model_document_picture.records.api import ModelDocumentPictureRecord
+from model_document_picture.services.config import ModelDocumentPictureServiceConfig
+from model_document_picture.services.service import ModelDocumentPictureService
+
+from model_document_no_expandable_fields.records.api import ModelDocumentNoExpandableFieldsRecord
+from model_document_no_expandable_fields.services.config import ModelDocumentNoExpandableFieldsServiceConfig
+from model_document_no_expandable_fields.services.service import ModelDocumentNoExpandableFieldsService
 
 from model_file.proxies import current_service as file_service
 from model_file.records.api import ModelFileRecord
 
+from model_picture.proxies import current_service as picture_service
+from model_picture.records.api import ModelPictureRecord
 
-from invenio_records_resources.services import RecordService as InvenioRecordService
-
-from oarepo_records_resources.services.expandable_fields import ReferencedRecordExpandableField
-
-
-class ModelDocumentService(InvenioRecordService):
-    @property
-    def expandable_fields(self):
-        return [
-            ReferencedRecordExpandableField(field_name="metadata.file",
-                                            keys=["metadata.filename", "metadata.filesize"],
-                                            service=file_service),
-        ]
-
+from model_document.records.api import ModelDocumentRecord
+from model_document.services.config import ModelDocumentServiceConfig
+from model_document.services.service import ModelDocumentService
 
 
 @pytest.fixture(scope="module")
 def document_service():
     return ModelDocumentService(ModelDocumentServiceConfig())
+
+@pytest.fixture(scope="module")
+def document_no_expandable_fields_service():
+    return ModelDocumentNoExpandableFieldsService(ModelDocumentNoExpandableFieldsServiceConfig())
+
+@pytest.fixture(scope="module")
+def document_picture_service():
+    return ModelDocumentPictureService(ModelDocumentPictureServiceConfig())
 
 @pytest.fixture(scope="function")
 def sample_document_dict(sample_file_record):
@@ -42,6 +45,14 @@ def sample_document_dict(sample_file_record):
                      "file": {"id": sample_file_record["id"]}
                  }}
 
+#todo alt id is just to test whether the custome choice of pid_fields works
+@pytest.fixture(scope="function")
+def sample_document_dict(sample_file_record, sample_picture_record):
+    return {"metadata": {
+                     "title": "record 1",
+                     "file": {"id": sample_file_record["id"]},
+                     "picture": {"alt_id": sample_picture_record["id"]}
+                 }}
 
 @pytest.fixture(scope="module")
 def sample_file_dict():
@@ -51,6 +62,68 @@ def sample_file_dict():
         "filesize": 512}
     }
     return ret
+
+@pytest.fixture(scope="module")
+def sample_picture_dict():
+    ret = {"metadata": {
+        "filename": "picture 1",
+        "alt": "blabla",
+        "alt_id": 1}
+    }
+    return ret
+
+
+@pytest.fixture(scope="function")
+def sample_file_record(app, db, sample_file_dict):
+    # record = current_service.create(system_identity, sample_data[0])
+    # return record
+    with UnitOfWork(db.session) as uow:
+        record = ModelFileRecord.create(sample_file_dict)
+        uow.register(RecordCommitOp(record, file_service.indexer, True))
+        uow.commit()
+        return record
+
+@pytest.fixture(scope="function")
+def sample_picture_record(app, db, sample_picture_dict):
+    # record = current_service.create(system_identity, sample_data[0])
+    # return record
+    with UnitOfWork(db.session) as uow:
+        record = ModelPictureRecord.create(sample_picture_dict)
+        uow.register(RecordCommitOp(record, picture_service.indexer, True))
+        uow.commit()
+        return record
+
+@pytest.fixture(scope="function")
+def sample_document_record(app, db, sample_file_record, sample_document_dict, document_service):
+    # record = current_service.create(system_identity, sample_data[0])
+    # return record
+    with UnitOfWork(db.session) as uow:
+        record = ModelDocumentRecord.create(sample_document_dict)
+        uow.register(RecordCommitOp(record, document_service.indexer, True))
+        uow.commit()
+        return record
+
+@pytest.fixture(scope="function")
+def sample_document_no_expand_record(app, db, sample_file_record, sample_document_dict, document_service):
+    # record = current_service.create(system_identity, sample_data[0])
+    # return record
+    with UnitOfWork(db.session) as uow:
+        record = ModelDocumentNoExpandableFieldsRecord.create(sample_document_dict)
+        uow.register(RecordCommitOp(record, document_service.indexer, True))
+        uow.commit()
+        return record
+
+@pytest.fixture(scope="function")
+def sample_document_picture_record(app, db, sample_file_record, sample_document_dict, document_picture_service):
+    # record = current_service.create(system_identity, sample_data[0])
+    # return record
+    with UnitOfWork(db.session) as uow:
+        record = ModelDocumentPictureRecord.create(sample_document_dict)
+        uow.register(RecordCommitOp(record, document_picture_service.indexer, True))
+        uow.commit()
+        return record
+
+
 
 
 @pytest.fixture(scope="module")
@@ -71,29 +144,6 @@ def app_config(app_config):
     ] = "invenio_jsonschemas.proxies.current_refresolver_store"
     app_config["RATELIMIT_AUTHENTICATED_USER"] = "200 per second"
     return app_config
-
-
-@pytest.fixture(scope="function")
-def sample_document_record(app, db, sample_file_record, sample_document_dict, document_service):
-    # record = current_service.create(system_identity, sample_data[0])
-    # return record
-    with UnitOfWork(db.session) as uow:
-        record = ModelDocumentRecord.create(sample_document_dict)
-        uow.register(RecordCommitOp(record, document_service.indexer, True))
-        uow.commit()
-        return record
-
-
-@pytest.fixture(scope="function")
-def sample_file_record(app, db, sample_file_dict):
-    # record = current_service.create(system_identity, sample_data[0])
-    # return record
-    with UnitOfWork(db.session) as uow:
-        record = ModelFileRecord.create(sample_file_dict)
-        uow.register(RecordCommitOp(record, file_service.indexer, True))
-        uow.commit()
-        return record
-
 
 @pytest.fixture()
 def user(app, db):

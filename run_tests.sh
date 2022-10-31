@@ -1,23 +1,15 @@
 #!/bin/bash
 set -e
-
 cd tests
-if test -d model_document; then
-	rm -rf model_document
-fi
-if test -d model_file; then
-	rm -rf model_file
-fi
-oarepo-compile-model ./model_document.yaml --output-directory ./model_document
-oarepo-compile-model ./model_file.yaml --output-directory ./model_file
-
-cd model_document
-pip install -e .
+for model in model_document model_document_no_expandable_fields model_document_picture model_file model_picture
+do
+    if test -d $model; then
+	    rm -rf $model
+    fi
+    oarepo-compile-model "./$model.yaml" --output-directory "./$model" -vvv
+    cd $model
+    pip install -e .
+    cd ..
+done
 cd ..
-cd model_file
-pip install -e .
-cd ..
-cd ..
-
-pip install py
 pytest
