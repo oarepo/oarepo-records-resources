@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from flask_security import login_user
 from invenio_access import current_access, ActionUsers
@@ -8,12 +10,12 @@ from invenio_app.factory import create_api
 from invenio_records_resources.services.uow import UnitOfWork, RecordCommitOp
 
 from model_document_picture.records.api import ModelDocumentPictureRecord
-from model_document_picture.services.config import ModelDocumentPictureServiceConfig
-from model_document_picture.services.service import ModelDocumentPictureService
+from model_document_picture.services.records.config import ModelDocumentPictureServiceConfig
+from model_document_picture.services.records.service import ModelDocumentPictureService
 
 from model_document_no_expandable_fields.records.api import ModelDocumentNoExpandableFieldsRecord
-from model_document_no_expandable_fields.services.config import ModelDocumentNoExpandableFieldsServiceConfig
-from model_document_no_expandable_fields.services.service import ModelDocumentNoExpandableFieldsService
+from model_document_no_expandable_fields.services.records.config import ModelDocumentNoExpandableFieldsServiceConfig
+from model_document_no_expandable_fields.services.records.service import ModelDocumentNoExpandableFieldsService
 
 from model_file.proxies import current_service as file_service
 from model_file.records.api import ModelFileRecord
@@ -22,8 +24,8 @@ from model_picture.proxies import current_service as picture_service
 from model_picture.records.api import ModelPictureRecord
 
 from model_document.records.api import ModelDocumentRecord
-from model_document.services.config import ModelDocumentServiceConfig
-from model_document.services.service import ModelDocumentService
+from model_document.services.records.config import ModelDocumentServiceConfig
+from model_document.services.records.service import ModelDocumentService
 
 
 @pytest.fixture(scope="module")
@@ -143,6 +145,12 @@ def app_config(app_config):
         "RECORDS_REFRESOLVER_STORE"
     ] = "invenio_jsonschemas.proxies.current_refresolver_store"
     app_config["RATELIMIT_AUTHENTICATED_USER"] = "200 per second"
+    app_config["SEARCH_HOSTS"] = [
+        {
+            "host": os.environ.get("OPENSEARCH_HOST", "localhost"),
+            "port": os.environ.get("OPENSEARCH_PORT", "9200"),
+        }
+    ]
     return app_config
 
 @pytest.fixture()

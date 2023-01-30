@@ -7,14 +7,8 @@ model:
         licence_type:
           type: keyword
         filesize:
-          type: number
-
-oarepo:use:
+          type: integer
+  use:
   - invenio
-
-
-
-# normally there is no need to modify the settings bellow, but feel free
-settings:
   package: model_file
   schema-server: 'local://'

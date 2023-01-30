@@ -12,4 +12,5 @@ do
     cd ..
 done
 cd ..
+#export OPENSEARCH_PORT=9400
 pytest

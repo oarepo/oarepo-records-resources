@@ -8,35 +8,29 @@ model:
           properties:
            id:
              type: keyword
-          oarepo:marshmallow:
+          marshmallow:
             generate: true
             class: model_document_picture.schemas.ReferencedFileSchema
         picture:
           properties:
             alt_id:
               type: keyword
-          oarepo:marshmallow:
+          marshmallow:
             generate: true
             class: model_document_picture.schemas.PictureSchema
-
-oarepo:use:
-  - invenio
-
-
-# normally there is no need to modify the settings bellow, but feel free
-settings:
+  use:
+    - invenio
   package: model_document_picture
   schema-server: 'local://'
-
-expandable-fields:
-  - field-name: metadata.file
-    referenced-keys:
-      - metadata.filename
-      - metadata.filesize
-    service: model_file.proxies.current_service
-  - field-name: metadata.picture
-    referenced-keys:
-      - metadata.alt
-    service: model_picture.proxies.current_service
-    pid_field: alt_id
-    service-alias: big_pic_service
+  expandable-fields:
+    - field-name: metadata.file
+      referenced-keys:
+        - metadata.filename
+        - metadata.filesize
+      service: model_file.proxies.current_service
+    - field-name: metadata.picture
+      referenced-keys:
+        - metadata.alt
+      service: model_picture.proxies.current_service
+      pid_field: alt_id
+      service-alias: big_pic_service

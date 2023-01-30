@@ -8,23 +8,18 @@ model:
           properties:
            id:
              type: keyword
-          oarepo:marshmallow:
+          marshmallow:
             generate: true
             class: model_document.schemas.FileSchema
 
-oarepo:use:
-  - invenio
-
-
-# normally there is no need to modify the settings bellow, but feel free
-settings:
+  use:
+    - invenio
   package: model_document
   schema-server: 'local://'
-
-expandable-fields:
-  - field-name: metadata.file
-    referenced-keys:
-      - metadata.filename
-      - metadata.filesize
-    service: model_file.proxies.current_service
+  expandable-fields:
+    - field-name: metadata.file
+      referenced-keys:
+        - metadata.filename
+        - metadata.filesize
+      service: model_file.proxies.current_service
 

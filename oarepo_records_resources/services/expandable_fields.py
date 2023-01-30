@@ -15,7 +15,7 @@ class ReferencedRecordExpandableField(ExpandableField):
             return value, self.service
         return dict_lookup(value, self.pid_field), self.service
 
-    def pick(self, resolved_rec):
+    def pick(self, identity, resolved_rec):
 
         ret = {}
         for key in self.keys:

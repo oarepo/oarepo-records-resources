@@ -8,16 +8,12 @@ model:
           properties:
            id:
              type: keyword
-          oarepo:marshmallow:
+          marshmallow:
             generate: true
             class: model_document_no_expandable_fields.schemas.FileSchema
 
-oarepo:use:
-  - invenio
-
-
-# normally there is no need to modify the settings bellow, but feel free
-settings:
+  use:
+    - invenio
   package: model_document_no_expandable_fields
   schema-server: 'local://'
 
